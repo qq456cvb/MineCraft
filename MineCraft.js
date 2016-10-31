@@ -120,10 +120,10 @@ var DEBitmapLoader = {
     }
 };
 
-var bmd = Bitmap.createBitmapData(2, 2);
-var R = 0xFFFF0000;
-var G = 0xFF00FF00;
-var B = 0xFF0000FF;
+// var bmd = Bitmap.createBitmapData(2, 2);
+// var R = 0xFFFF0000;
+// var G = 0xFF00FF00;
+// var B = 0xFF0000FF;
 
 function logMatrix(mat) {
     for (var i = 0; i < 4; i++) {
@@ -253,16 +253,17 @@ function getProjectionMatrix(viewAngle, aspect, zn, zf) {
 }
 
 function normToUV(norm) {
-    return {
-        x: norm.x * Player.width / 2. + Player.width / 2.,
-        y: Player.height / 2. - norm.y * Player.height / 2.
-    };
+    var temp = {};
+    temp.x = norm.x * Player.width / 2. + Player.width / 2.;
+    temp.y = Player.height / 2. - norm.y * Player.height / 2.;
+    return temp;
 }
 
 function fillTriangle(g, p, uv, depth) {
     // bmd.setVector(bmd.rect, $.toUIntVector([c[0], c[1], c[2], (c[1]+c[2]) >> 1]));
-
+    trace(3);
     g.graphics.beginBitmapFill(Global.Renderer.CurrentTexture,null,false,false /* =smooth */ );
+
     g.graphics.drawTriangles(
         // x,y -coordinates
         $.toNumberVector([
@@ -312,7 +313,11 @@ function TrianglePrimitive(triangleMesh) {
         while (cnt < this.mesh.v.length) {
             var triangle = {};
             var disgard = false;
-            triangle.points = triangle.pointsRaw = triangle.uv = triangle.depth = triangle.pointsScreen = [];
+            triangle.points = [];
+            triangle.pointsRaw = [];
+            triangle.uv = [];
+            triangle.depth = [];
+            triangle.pointsScreen = [];
             triangle.z = 0;
             for (var i = 0; i < 3; i++) {
                 var idx = this.mesh.v[i+cnt];
@@ -407,14 +412,18 @@ var EventManager = {
         Global.Canvas.Main.graphics.drawRect(0, 0, Player.width,Player.height); // (x spacing, y spacing, width, height)
         Global.Canvas.Main.graphics.endFill();
 
-        Global.Renderer.NormedTriangles.clear();
+        Global.Renderer.NormedTriangles.length = 0;
+
         for (var i = 0; i < ObjPool.objects.length; i++) {
             ObjPool.objects[i].normalize();
         }
+
         sortTriangles(Global.Renderer.NormedTriangles, 0, Global.Renderer.NormedTriangles.length-1);
 
+
         for (var i = 0; i < Global.Renderer.NormedTriangles.length; i++) {
-            fillTriangle(Global.Canvas.Main.graphics,
+            // trace(Global.Renderer.NormedTriangles[i].pointsScreen[0].x);
+            fillTriangle(Global.Canvas.Main,
                 Global.Renderer.NormedTriangles[i].pointsScreen,
                 Global.Renderer.NormedTriangles[i].uv,
                 Global.Renderer.NormedTriangles[i].depth);
@@ -486,6 +495,10 @@ function init() {
     Player.keyTrigger(function(key){
         keyDown(key);
     }, 1<<31 -1);
+
+    Global.Texture.Grass = DEBitmapLoader.loadBitmapData(Global.Bitmap.Grass);
+    Global.Renderer.CurrentTexture = Global.Texture.Grass;
+
     $.root.addEventListener("enterFrame", EventManager.RenderFrame);
     $.root.addEventListener("mouseMove", function (e) {
         EventManager.MouseMove(e);
@@ -498,8 +511,6 @@ function init() {
 
     var plane = TriangleMesh([$.createVector3D(0.5, 0, 0, 1.), $.createVector3D(0.5, 1., 0, 1.), $.createVector3D(-0.5, 1., 0, 1.), $.createVector3D(-0.5, 0, 0, 1.)],
         [3, 0, 1, 1, 3, 2], [[0,0], [1,0], [1,1], [1,1], [0,0], [0,1]]);
-
-    Global.Texture.Grass = DEBitmapLoader.loadBitmapData(Global.Bitmap.Grass);
 
     var cube = TrianglePrimitive(plane);
 
