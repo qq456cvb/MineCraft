@@ -5,3 +5,6 @@ Move your character using "wasd"!</b>
 
 # TODO
 Add higher-level API for rendering blocks and collision detection is needed.
+
+# Warning
+Bilibili has updated the flash player so this project cannot run properly now.
