@@ -7,4 +7,4 @@ Move your character using "wasd"!</b>
 Add higher-level API for rendering blocks and collision detection is needed.
 
 # Warning
-Bilibili has updated the flash player so this project cannot run properly now.
+Bilibili has updated the flash player. In order to run properly, you should manually replace "//" styled comments with "/* */" block-styled comments.
