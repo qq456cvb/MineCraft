@@ -1,46 +1,16 @@
 # MineCraft
 
-<!-- README refined by Cursor -->
+The beginnings of a Minecraft clone that runs **inside the Bilibili video player** — a from-scratch 3D software renderer written for Bilibili's advanced-danmaku (高级弹幕) scripting sandbox, the same Flash-era environment as my [danmuku_game](https://github.com/qq456cvb/danmuku_game). Paste `MineCraft.js` into the "高级弹幕" editor and you get a textured terrain block you can walk around with WASD/arrow keys and look around with the mouse.
 
-BiliBili Minecraft
+## What's Implemented
 
-## Overview
+The sandbox exposes no 3D API, so the whole pipeline is hand-rolled in `MineCraft.js`:
 
-This repository contains JavaScript code from an older research, course, or prototype project. The README has been refreshed to make the repository easier to scan while preserving the original notes below.
-
-## Repository Contents
-
-- Top-level source files and project assets.
-
-## Setup
-
-- This legacy repo does not pin a full environment. Start from the language/toolchain implied by the source files, then install missing packages as reported by the runtime.
-
-## Usage
-
-- inspect the source directories listed below; many of these older repos were kept as research prototypes rather than packaged applications.
-
-## Data and Artifacts
-
-No new large artifact is stored in this repository. If a dataset or checkpoint is required, follow the links and notes in the original section below.
+- **Math**: look-at view matrix and a perspective projection matrix built from scratch on the sandbox's `Matrix3D`/`Vector3D` primitives, with full model → view → projection → NDC → screen vertex transformation.
+- **Rasterization**: triangles are drawn with Flash's `drawTriangles`, passing per-vertex `1/w` so texture mapping is perspective-correct. Visibility is handled by a painter's algorithm — a quicksort over the per-frame triangle list by depth — plus near/far rejection in NDC.
+- **Texturing**: the grass texture is a BMP embedded as a base64 string, decoded by a hand-written loader (`DEBitmapLoader`) that parses the BMP header and converts ABGR to RGBA.
+- **Input**: mouse-move drives the view direction; WASD/arrows translate the eye along the view and strafe axes at 30 fps.
 
 ## Status
 
-This is a `Batch C` cleanup pass for a legacy repository. Commands may require dependency/version adjustments on a modern machine.
-
-## License
-
-No explicit license file was found in this checkout; check the original project context before reusing code.
-
-## Original Notes
-
-# MineCraft
-The basic 3D rendering engine is built, you can copy it and paste into the section called "高级弹幕" on bilibili.com.
-Hopefully, you can see a terrain block and <b>view it from different angles as you move the mouse! 
-Move your character using "wasd"!</b>
-
-# TODO
-Add higher-level API for rendering blocks and collision detection is needed.
-
-# Warning
-Bilibili has updated the flash player. In order to run properly, you should manually replace "//" styled comments with "/* */" block-styled comments.
+Engine groundwork only — the scene is a single textured quad, and the planned block-placement API and collision detection were never added. Bilibili has since retired the Flash danmaku engine entirely, so running it today requires a BiliScript-compatible emulator. (A period note: after a Bilibili player update, `//` line comments broke the script and had to be replaced with `/* */` block comments.)
